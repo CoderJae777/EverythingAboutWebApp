@@ -1,14 +1,55 @@
 # React.js Cheatsheet
 
-_This markdown contains content from the Meta React Basics course._
+_This markdown contains content from the [Meta React Native Specialization](https://www.coursera.org/specializations/meta-react-native) on Coursera._
+_Course: [React Basics](https://www.coursera.org/learn/react-basics)_
+
+---
+
+## Table of Contents
+
+**General Knowledge**
+- [Create a New Project](#create-a-new-project)
+- [Clean Project Setup](#clean-project-setup)
+- [Project Structure (Vite)](#project-structure-vite)
+- [Useful Commands](#useful-commands)
+- [What is the DOM?](#what-is-the-dom)
+- [Virtual DOM (React)](#virtual-dom-react)
+- [File / Component Organization](#file--component-organization)
+- [Common Patterns](#common-patterns)
+
+**JSX & JavaScript**
+- [Arrow Functions in React](#arrow-functions-in-react)
+- [JS vs JSX (Javascript XML)](#js-vs-jsx-javascript-xml)
+- [JSX Rules](#jsx-rules)
+- [Conditional Rendering](#conditional-rendering)
+- [Rendering Lists](#rendering-lists)
+- [Event Handling](#event-handling)
+
+**React**
+- [Functional Components](#functional-components)
+- [Props](#props)
+- [useState](#usestate)
+- [useEffect](#useeffect)
+- [Fetching Data](#fetching-data)
+- [Forms — Controlled Components](#forms--controlled-components)
+- [useRef](#useref)
+- [useContext](#usecontext)
+- [Lifting State Up](#lifting-state-up)
+- [Custom Hooks](#custom-hooks)
+- [React Router (v6)](#react-router-v6)
+- [Styling in React](#styling-in-react)
 
 ---
 
 ## General Knowledge
 
+[Back to top](#table-of-contents)
+
 ---
 
 ### Create a New Project
+
+[Back to top](#table-of-contents)
 
 ```bash
 # Using Vite (recommended — fast, modern)
@@ -24,6 +65,8 @@ npm start
 ```
 
 ### Clean Project Setup
+
+[Back to top](#table-of-contents)
 
 Vite comes with demo content (logos, counter, links). To start with a blank slate:
 
@@ -67,6 +110,8 @@ This gives you a blank white page with just "Hello, World!" — no logos, no cou
 
 ### Project Structure (Vite)
 
+[Back to top](#table-of-contents)
+
 ```text
 my-app/
 ├── public/            # Static files
@@ -84,6 +129,8 @@ my-app/
 
 ### Useful Commands
 
+[Back to top](#table-of-contents)
+
 ```bash
 npm run dev       # Start dev server
 npm run build     # Build for production
@@ -94,6 +141,8 @@ npm install axios # Install a package (example)
 ---
 
 ### What is the DOM?
+
+[Back to top](#table-of-contents)
 
 The **DOM (Document Object Model)** is the browser's live representation of your HTML page as a tree of objects.
 
@@ -123,11 +172,15 @@ document.querySelector(".btn").style.color = "red";
 
 ### Virtual DOM (React)
 
+[Back to top](#table-of-contents)
+
 In React, you rarely touch the DOM directly. React maintains a **Virtual DOM** — a lightweight copy of the real DOM. When state changes, React compares the virtual DOM to the real DOM and only updates what actually changed. This is why React is fast.
 
 ---
 
 ### File / Component Organization
+
+[Back to top](#table-of-contents)
 
 ```text
 src/
@@ -150,6 +203,8 @@ src/
 ---
 
 ### Common Patterns
+
+[Back to top](#table-of-contents)
 
 ```jsx
 // Loading / error / data pattern
@@ -180,9 +235,13 @@ const [checked, setChecked] = useState(false);
 
 ## JSX & JavaScript
 
+[Back to top](#table-of-contents)
+
 ---
 
 ### Arrow Functions in React
+
+[Back to top](#table-of-contents)
 
 Arrow functions are the standard way to write functions in React.
 
@@ -224,6 +283,8 @@ const Greeting = () => <h1>Hello</h1>;
 
 ### JS vs JSX (Javascript XML)
 
+[Back to top](#table-of-contents)
+
 |                  | `.js`                          | `.jsx`                              |
 | ---------------- | ------------------------------ | ----------------------------------- |
 | **Contains**     | Plain JavaScript               | JavaScript + HTML-like syntax (JSX) |
@@ -248,6 +309,8 @@ const element = React.createElement("h1", { className: "title" }, "Hello");
 ---
 
 ### JSX Rules
+
+[Back to top](#table-of-contents)
 
 JSX lets you write HTML-like syntax in JavaScript.
 
@@ -295,6 +358,8 @@ return (
 
 ### Conditional Rendering
 
+[Back to top](#table-of-contents)
+
 ```jsx
 // Traditional if/else — must be used OUTSIDE of JSX return
 const Greeting = ({ isLoggedIn }) => {
@@ -332,6 +397,8 @@ You can't use `if/else` inside JSX `{}` because it's a statement, not an express
 
 ### Rendering Lists
 
+[Back to top](#table-of-contents)
+
 ```jsx
 const TodoList = ({ items }) => {
     return (
@@ -351,6 +418,8 @@ const TodoList = ({ items }) => {
 ---
 
 ### Event Handling
+
+[Back to top](#table-of-contents)
 
 ```jsx
 // Click
@@ -377,6 +446,26 @@ const handleSubmit = (e) => {
 const [name, setName] = useState("");
 <input value={name} onChange={(e) => setName(e.target.value)} />
 
+// The Event Object (e)
+// When an event fires, React passes a SyntheticEvent object to your handler.
+// It's a temporary snapshot of that single event — not a tracker or counter.
+// A new object is created for each event and discarded after the handler runs.
+
+const handleClick = (e) => {
+    e.target;              // The DOM element that triggered the event
+    e.type;                // Event type string, e.g. "click"
+    e.preventDefault();    // Stop default browser behavior (e.g. form reload)
+    e.stopPropagation();   // Stop event from bubbling up to parent elements
+    e.clientX, e.clientY;  // Mouse coordinates at time of click
+    e.target.value;        // Value of an input element (used with onChange)
+    e.target.id;           // ID of the element (useful when sharing one handler)
+    e.nativeEvent;         // The underlying native browser event
+};
+
+// You don't have to use it — only accept e when you need event info.
+// If you just want to run some logic on click, you can skip it entirely:
+const handleClick = () => console.log("clicked");
+
 // Common events
 <input onChange={handleChange} />       // Input changes
 <input onFocus={handleFocus} />         // Input focused
@@ -390,9 +479,13 @@ const [name, setName] = useState("");
 
 ## React
 
+[Back to top](#table-of-contents)
+
 ---
 
 ### Functional Components
+
+[Back to top](#table-of-contents)
 
 The building blocks of React. Every piece of UI is a component.
 
@@ -413,9 +506,13 @@ const Greeting = () => <h1>Hello, World!</h1>;
 
 ### Props
 
+[Back to top](#table-of-contents)
+
 How you pass data from a parent component to a child component. Props is an object that holds all the attributes you pass to a component.
 
 ### Full Example (start to end)
+
+[Back to top](#table-of-contents)
 
 ```jsx
 // ---- Step 1: Create the child component that accepts props ----
@@ -466,6 +563,8 @@ You never manually create the props object — React builds it from the attribut
 
 ### Destructuring Props (cleaner syntax)
 
+[Back to top](#table-of-contents)
+
 Instead of writing `props.name`, `props.age` every time, you can destructure:
 
 ```jsx
@@ -484,6 +583,8 @@ const Greeting = ({ name, age }) => {
 
 ### Default Prop Values
 
+[Back to top](#table-of-contents)
+
 ```jsx
 const Button = ({ label = "Click me", color = "blue" }) => {
     return <button style={{ backgroundColor: color }}>{label}</button>;
@@ -494,6 +595,8 @@ const Button = ({ label = "Click me", color = "blue" }) => {
 ```
 
 ### Children Props
+
+[Back to top](#table-of-contents)
 
 `props.children` is the content the parent puts inside the component's opening and closing tags. The child doesn't need to know what's inside — it just renders it.
 
@@ -516,6 +619,8 @@ const Card = ({ children }) => {
 
 ### Passing Functions as Props
 
+[Back to top](#table-of-contents)
+
 ```jsx
 <Button onClick={() => alert("Clicked!")} />
 
@@ -527,6 +632,8 @@ const Button = ({ onClick }) => {
 ---
 
 ### useState
+
+[Back to top](#table-of-contents)
 
 Lets a component remember values that change over time.
 
@@ -567,6 +674,8 @@ setItems(items.map(item =>                              // Update one
 
 ### useEffect
 
+[Back to top](#table-of-contents)
+
 Run side effects: fetch data, set up subscriptions, update the document title, etc.
 
 ```jsx
@@ -597,6 +706,8 @@ useEffect(() => {
 ---
 
 ### Fetching Data
+
+[Back to top](#table-of-contents)
 
 ```jsx
 import { useState, useEffect } from "react";
@@ -638,6 +749,8 @@ const UserList = () => {
 
 ### Forms — Controlled Components
 
+[Back to top](#table-of-contents)
+
 React controls the input value via state.
 
 ```jsx
@@ -669,6 +782,8 @@ const SignupForm = () => {
 
 ### useRef
 
+[Back to top](#table-of-contents)
+
 Access DOM elements directly or persist values across renders without causing re-renders.
 
 ```jsx
@@ -699,6 +814,8 @@ clearInterval(timerRef.current);
 ---
 
 ### useContext
+
+[Back to top](#table-of-contents)
 
 Share data across components without passing props through every level.
 
@@ -738,6 +855,8 @@ const Navbar = () => {
 
 ### Lifting State Up
 
+[Back to top](#table-of-contents)
+
 When two sibling components need to share state, move it to their parent.
 
 ```jsx
@@ -762,6 +881,8 @@ const Controls = ({ setCount }) => (
 ---
 
 ### Custom Hooks
+
+[Back to top](#table-of-contents)
 
 Extract reusable logic into your own hooks.
 
@@ -808,6 +929,8 @@ const UserList = () => {
 ---
 
 ### React Router (v6)
+
+[Back to top](#table-of-contents)
 
 Handle navigation between pages.
 
@@ -860,6 +983,8 @@ const LoginPage = () => {
 ---
 
 ### Styling in React
+
+[Back to top](#table-of-contents)
 
 ```jsx
 // 1. CSS file import

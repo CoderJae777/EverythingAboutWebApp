@@ -4,7 +4,7 @@ A personal knowledge base covering everything about web application development
 
 ## About
 
-This repository is my central hub for all web development notes, cheatsheets, and hands-on experiences. Built alongside the [Meta React Basics](https://www.coursera.org/learn/react-basics) course on Coursera and expanded with learnings from real-world projects.
+This repository is my central hub for all web development notes, cheatsheets, and hands-on experiences. Built alongside the [Meta React Native Specialization](https://www.coursera.org/specializations/meta-react-native) on Coursera and expanded with learnings from real-world projects.
 
 ## What's Inside
 

@@ -1,11 +1,6 @@
 import "./App.css";
 import Header from "./Header.jsx";
-import picture from "./images/gay-black.png";
-
-function Image(props) {
-  const image = <img src={picture} />;
-  return image;
-}
+import Button from "./Button.jsx";
 
 // Parent
 function App() {
@@ -13,7 +8,8 @@ function App() {
     // Parent want Header child to take in firstname = "Jae"
     <Header firstname="Jae">
       <p>Here's a gay autistic children</p>
-      <Image />
+      {/* <Image /> */}
+      <Button />
     </Header>
   );
 }
