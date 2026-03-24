@@ -8,6 +8,7 @@ _Course: [React Basics](https://www.coursera.org/learn/react-basics)_
 ## Table of Contents
 
 **General Knowledge**
+
 - [Create a New Project](#create-a-new-project)
 - [Clean Project Setup](#clean-project-setup)
 - [Project Structure (Vite)](#project-structure-vite)
@@ -18,6 +19,7 @@ _Course: [React Basics](https://www.coursera.org/learn/react-basics)_
 - [Common Patterns](#common-patterns)
 
 **JSX & JavaScript**
+
 - [Arrow Functions in React](#arrow-functions-in-react)
 - [JS vs JSX (Javascript XML)](#js-vs-jsx-javascript-xml)
 - [JSX Rules](#jsx-rules)
@@ -26,7 +28,9 @@ _Course: [React Basics](https://www.coursera.org/learn/react-basics)_
 - [Event Handling](#event-handling)
 
 **React**
+
 - [Functional Components](#functional-components)
+- [Stateful vs Stateless Components](#stateful-vs-stateless-components)
 - [Props](#props)
 - [useState](#usestate)
 - [useEffect](#useeffect)
@@ -248,12 +252,12 @@ Arrow functions are the standard way to write functions in React.
 ```jsx
 // Traditional function
 function greet(name) {
-    return "Hello, " + name;
+  return "Hello, " + name;
 }
 
 // Arrow function (same thing)
 const greet = (name) => {
-    return "Hello, " + name;
+  return "Hello, " + name;
 };
 
 // Arrow function with implicit return (one-liner, no braces)
@@ -263,7 +267,7 @@ const greet = (name) => "Hello, " + name;
 const sayHi = () => "Hi!";
 
 // One parameter — parentheses optional
-const double = n => n * 2;
+const double = (n) => n * 2;
 ```
 
 In React, arrow functions are used for **components**, **event handlers**, and **callbacks**:
@@ -273,10 +277,12 @@ In React, arrow functions are used for **components**, **event handlers**, and *
 const Greeting = () => <h1>Hello</h1>;
 
 // Event handler
-<button onClick={() => console.log("Clicked!")}>Click</button>
+<button onClick={() => console.log("Clicked!")}>Click</button>;
 
 // Callback in .map()
-{items.map(item => <li key={item.id}>{item.name}</li>)}
+{
+  items.map((item) => <li key={item.id}>{item.name}</li>);
+}
 ```
 
 ---
@@ -363,31 +369,37 @@ return (
 ```jsx
 // Traditional if/else — must be used OUTSIDE of JSX return
 const Greeting = ({ isLoggedIn }) => {
-    if (isLoggedIn) {
-        return <Dashboard />;
-    } else {
-        return <Login />;
-    }
+  if (isLoggedIn) {
+    return <Dashboard />;
+  } else {
+    return <Login />;
+  }
 };
 
 // Ternary — can be used INSIDE JSX (replaces if/else in one line)
-{isLoggedIn ? <Dashboard /> : <Login />}
+{
+  isLoggedIn ? <Dashboard /> : <Login />;
+}
 
 // && — render only if true (no else needed)
-{isAdmin && <AdminPanel />}
-{items.length > 0 && <ItemList items={items} />}
+{
+  isAdmin && <AdminPanel />;
+}
+{
+  items.length > 0 && <ItemList items={items} />;
+}
 
 // Early return — skip rendering entirely
 const Profile = ({ user }) => {
-    if (!user) return <p>Please log in</p>;
-    return <h1>{user.name}</h1>;
+  if (!user) return <p>Please log in</p>;
+  return <h1>{user.name}</h1>;
 };
 
 // Multiple conditions
 const StatusBadge = ({ status }) => {
-    if (status === "active") return <span className="green">Active</span>;
-    if (status === "pending") return <span className="yellow">Pending</span>;
-    return <span className="red">Inactive</span>;
+  if (status === "active") return <span className="green">Active</span>;
+  if (status === "pending") return <span className="yellow">Pending</span>;
+  return <span className="red">Inactive</span>;
 };
 ```
 
@@ -401,13 +413,13 @@ You can't use `if/else` inside JSX `{}` because it's a statement, not an express
 
 ```jsx
 const TodoList = ({ items }) => {
-    return (
-        <ul>
-            {items.map((item) => (
-                <li key={item.id}>{item.text}</li>
-            ))}
-        </ul>
-    );
+  return (
+    <ul>
+      {items.map((item) => (
+        <li key={item.id}>{item.text}</li>
+      ))}
+    </ul>
+  );
 };
 
 // key must be unique and stable — use id, not index
@@ -492,15 +504,39 @@ The building blocks of React. Every piece of UI is a component.
 ```jsx
 // Function component (the standard way)
 const Greeting = () => {
-    return <h1>Hello, World!</h1>;
+  return <h1>Hello, World!</h1>;
 };
 
 // With implicit return
 const Greeting = () => <h1>Hello, World!</h1>;
 
 // Using the component
-<Greeting />
+<Greeting />;
 ```
+
+---
+
+### Stateful vs Stateless Components
+
+[Back to top](#table-of-contents)
+
+- **Stateful** — has its own state using `useState`. It manages and updates data internally.
+- **Stateless** — has no state. It just receives props and renders UI.
+
+```jsx
+// Stateful — owns and manages data
+const Counter = () => {
+  const [count, setCount] = useState(0);
+  return <Display count={count} />;
+};
+
+// Stateless — just receives props and displays them
+const Display = ({ count }) => {
+  return <p>Count: {count}</p>;
+};
+```
+
+Most components in a React app are stateless. Only the components that need to manage data should hold state.
 
 ---
 
@@ -570,12 +606,12 @@ Instead of writing `props.name`, `props.age` every time, you can destructure:
 ```jsx
 // Same thing, but pull out the values directly
 const Greeting = ({ name, age }) => {
-    return (
-        <div>
-            <h1>Hello, {name}</h1>
-            <p>Age: {age}</p>
-        </div>
-    );
+  return (
+    <div>
+      <h1>Hello, {name}</h1>
+      <p>Age: {age}</p>
+    </div>
+  );
 };
 
 // Both are identical — destructuring is just shorthand
@@ -603,17 +639,17 @@ const Button = ({ label = "Click me", color = "blue" }) => {
 ```jsx
 // Anything between opening and closing tags becomes props.children
 <Card>
-    <h2>Title</h2>
-    <p>Some content</p>
-</Card>
+  <h2>Title</h2>
+  <p>Some content</p>
+</Card>;
 
 const Card = (props) => {
-    return <div className="card">{props.children}</div>;
+  return <div className="card">{props.children}</div>;
 };
 
 // Or destructured
 const Card = ({ children }) => {
-    return <div className="card">{children}</div>;
+  return <div className="card">{children}</div>;
 };
 ```
 
@@ -622,11 +658,45 @@ const Card = ({ children }) => {
 [Back to top](#table-of-contents)
 
 ```jsx
-<Button onClick={() => alert("Clicked!")} />
+<Button onClick={() => alert("Clicked!")} />;
 
 const Button = ({ onClick }) => {
-    return <button onClick={onClick}>Click me</button>;
+  return <button onClick={onClick}>Click me</button>;
 };
+```
+
+### Passing JS Data as props
+
+_For what?_ So that moving forward everytime you need to edit whatever gets passed to the child, you can just edit directly in the data constant, and dont need to find the parent specifically and edit what you want to pass to the child!
+
+[Back to top](#table-of-contents)
+
+```jsx
+const data = {
+    heading: " 99% Discount!",
+    subtitle: "Buy now before its gone!"
+}
+
+// Child
+function PromoHeading (props){
+    return(
+        <div>
+            <h1>{props.heading}</h1>
+            <h2>{props.subtitle}</h2>
+        </div>
+    )
+}
+
+// Parent - pass the predefined data's heading and subtitle into PromoHeading child
+function Promo() {
+    return (
+        <div>
+            <PromoHeading heading={data.heading}, subtitle={data.subtitle} />
+        </div>
+    )
+}
+
+
 ```
 
 ---
@@ -641,33 +711,110 @@ Lets a component remember values that change over time.
 import { useState } from "react";
 
 const Counter = () => {
-    const [count, setCount] = useState(0); // [currentValue, setterFunction]
+  const [count, setCount] = useState(0); // [currentValue, setterFunction]
 
-    return (
-        <div>
-            <p>Count: {count}</p>
-            <button onClick={() => setCount(count + 1)}>+1</button>
-            <button onClick={() => setCount(prev => prev - 1)}>-1</button>
-        </div>
-    );
+  const handleIncrement = () => {
+    setCount(count + 1);
+  };
+
+  const handleDecrement = () => {
+    setCount((prev) => prev - 1);
+  };
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={handleIncrement}>+1</button>
+      <button onClick={handleDecrement}>-1</button>
+    </div>
+  );
 };
 
+// Using previous state — light switch toggle
+const LightSwitch = () => {
+  const [isOn, setIsOn] = useState(false);
+
+  const handleToggle = () => {
+    setIsOn((prevIsOn) => !prevIsOn); // flip the previous value
+  };
+
+  return (
+    <div>
+      <p>The light is {isOn ? "ON" : "OFF"}</p>
+      <button onClick={handleToggle}>Toggle</button>
+    </div>
+  );
+};
+
+// Why use (prev) => ... instead of setIsOn(!isOn)?
+// React batches state updates, so "isOn" might be stale.
+// Using the callback form guarantees you're working with the latest value.
+
 // Different data types
-const [name, setName] = useState("");            // String
-const [items, setItems] = useState([]);           // Array
-const [user, setUser] = useState(null);           // Null (will hold object later)
+const [name, setName] = useState(""); // String
+const [items, setItems] = useState([]); // Array
+const [user, setUser] = useState(null); // Null (will hold object later)
 const [form, setForm] = useState({ name: "", email: "" }); // Object
 
 // Updating objects — always spread to create a new copy
 setUser({ ...user, name: "Alice" });
-setForm(prev => ({ ...prev, email: "a@b.com" }));
+setForm((prev) => ({ ...prev, email: "a@b.com" }));
 
 // Updating arrays — never mutate directly
-setItems([...items, newItem]);                          // Add
-setItems(items.filter(item => item.id !== id));         // Remove
-setItems(items.map(item =>                              // Update one
-    item.id === id ? { ...item, done: true } : item
-));
+setItems([...items, newItem]); // Add
+setItems(items.filter((item) => item.id !== id)); // Remove
+setItems(
+  items.map(
+    (
+      item, // Update one
+    ) => (item.id === id ? { ...item, done: true } : item),
+  ),
+);
+```
+
+---
+
+### Passing useStates as props
+
+```jsx
+function App() {
+  const [fruits] = React.useState([
+    { fruitName: "apple", id: 1 },
+    { fruitName: "apple", id: 2 },
+    { fruitName: "plum", id: 3 },
+  ]);
+
+  return (
+    <div className="App">
+      <Fruits fruits={fruits} />
+      <FruitsCounter fruits={fruits} />
+    </div>
+  );
+}
+
+export default App;
+```
+
+```jsx
+function Fruits(props) {
+  return (
+    <div>
+      {props.fruits.map((f) => (
+        <p key={f.id}>{f.fruitName}</p>
+      ))}
+    </div>
+  );
+}
+
+export default Fruits;
+```
+
+```jsx
+function FruitsCounter(props) {
+  return <h2>Total fruits: {props.fruits.length}</h2>;
+}
+
+export default FruitsCounter;
 ```
 
 ---
@@ -683,23 +830,23 @@ import { useEffect } from "react";
 
 // Runs after every render
 useEffect(() => {
-    console.log("Component rendered");
+  console.log("Component rendered");
 });
 
 // Runs only once on mount (empty dependency array)
 useEffect(() => {
-    console.log("Component mounted");
+  console.log("Component mounted");
 }, []);
 
 // Runs when specific values change
 useEffect(() => {
-    console.log(`Count changed to ${count}`);
+  console.log(`Count changed to ${count}`);
 }, [count]);
 
 // Cleanup function — runs before re-run and on unmount
 useEffect(() => {
-    const timer = setInterval(() => console.log("tick"), 1000);
-    return () => clearInterval(timer); // Cleanup
+  const timer = setInterval(() => console.log("tick"), 1000);
+  return () => clearInterval(timer); // Cleanup
 }, []);
 ```
 
@@ -713,35 +860,35 @@ useEffect(() => {
 import { useState, useEffect } from "react";
 
 const UserList = () => {
-    const [users, setUsers] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-    useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const response = await fetch("https://api.example.com/users");
-                const data = await response.json();
-                setUsers(data);
-            } catch (err) {
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchUsers();
-    }, []);
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch("https://api.example.com/users");
+        const data = await response.json();
+        setUsers(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUsers();
+  }, []);
 
-    if (loading) return <p>Loading...</p>;
-    if (error) return <p>Error: {error}</p>;
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
 
-    return (
-        <ul>
-            {users.map(user => (
-                <li key={user.id}>{user.name}</li>
-            ))}
-        </ul>
-    );
+  return (
+    <ul>
+      {users.map((user) => (
+        <li key={user.id}>{user.name}</li>
+      ))}
+    </ul>
+  );
 };
 ```
 
@@ -755,26 +902,42 @@ React controls the input value via state.
 
 ```jsx
 const SignupForm = () => {
-    const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setForm(prev => ({ ...prev, [name]: value }));
-    };
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log("Submitted:", form);
-    };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("Submitted:", form);
+  };
 
-    return (
-        <form onSubmit={handleSubmit}>
-            <input name="name" value={form.name} onChange={handleChange} placeholder="Name" />
-            <input name="email" value={form.email} onChange={handleChange} placeholder="Email" />
-            <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="Password" />
-            <button type="submit">Sign Up</button>
-        </form>
-    );
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        name="name"
+        value={form.name}
+        onChange={handleChange}
+        placeholder="Name"
+      />
+      <input
+        name="email"
+        value={form.email}
+        onChange={handleChange}
+        placeholder="Email"
+      />
+      <input
+        name="password"
+        type="password"
+        value={form.password}
+        onChange={handleChange}
+        placeholder="Password"
+      />
+      <button type="submit">Sign Up</button>
+    </form>
+  );
 };
 ```
 
@@ -791,18 +954,18 @@ import { useRef } from "react";
 
 // Focus an input
 const SearchBar = () => {
-    const inputRef = useRef(null);
+  const inputRef = useRef(null);
 
-    const handleClick = () => {
-        inputRef.current.focus();
-    };
+  const handleClick = () => {
+    inputRef.current.focus();
+  };
 
-    return (
-        <>
-            <input ref={inputRef} placeholder="Search..." />
-            <button onClick={handleClick}>Focus Input</button>
-        </>
-    );
+  return (
+    <>
+      <input ref={inputRef} placeholder="Search..." />
+      <button onClick={handleClick}>Focus Input</button>
+    </>
+  );
 };
 
 // Store a value that doesn't trigger re-renders
@@ -827,28 +990,36 @@ const ThemeContext = createContext();
 
 // 2. Wrap your app with a Provider
 const App = () => {
-    const [theme, setTheme] = useState("light");
+  const [theme, setTheme] = useState("light");
 
-    return (
-        <ThemeContext.Provider value={{ theme, setTheme }}>
-            <Navbar />
-            <MainContent />
-        </ThemeContext.Provider>
-    );
+  return (
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      <Navbar />
+      <MainContent />
+    </ThemeContext.Provider>
+  );
 };
 
 // 3. Use the context in any child component
 const Navbar = () => {
-    const { theme, setTheme } = useContext(ThemeContext);
+  const { theme, setTheme } = useContext(ThemeContext);
 
-    return (
-        <nav className={theme}>
-            <button onClick={() => setTheme(theme === "light" ? "dark" : "light")}>
-                Toggle Theme
-            </button>
-        </nav>
-    );
+  return (
+    <nav className={theme}>
+      <button onClick={() => setTheme(theme === "light" ? "dark" : "light")}>
+        Toggle Theme
+      </button>
+    </nav>
+  );
 };
+
+// Context.Provider — the wrapper that makes data available to all children inside it (step 2 above)
+
+// Older alternative: Context.Consumer (you may see this in older codebases)
+// useContext(ThemeContext) replaced this — does the same thing but cleaner
+<ThemeContext.Consumer>
+  {({ theme }) => <p>Current theme: {theme}</p>}
+</ThemeContext.Consumer>;
 ```
 
 ---
@@ -861,20 +1032,20 @@ When two sibling components need to share state, move it to their parent.
 
 ```jsx
 const Parent = () => {
-    const [count, setCount] = useState(0);
+  const [count, setCount] = useState(0);
 
-    return (
-        <>
-            <Display count={count} />
-            <Controls setCount={setCount} />
-        </>
-    );
+  return (
+    <>
+      <Display count={count} />
+      <Controls setCount={setCount} />
+    </>
+  );
 };
 
 const Display = ({ count }) => <p>Count: {count}</p>;
 
 const Controls = ({ setCount }) => (
-    <button onClick={() => setCount(prev => prev + 1)}>+1</button>
+  <button onClick={() => setCount((prev) => prev + 1)}>+1</button>
 );
 ```
 
@@ -889,40 +1060,42 @@ Extract reusable logic into your own hooks.
 ```jsx
 // Custom hook for fetching data
 const useFetch = (url) => {
-    const [data, setData] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch(url);
-                const json = await response.json();
-                setData(json);
-            } catch (err) {
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchData();
-    }, [url]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(url);
+        const json = await response.json();
+        setData(json);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [url]);
 
-    return { data, loading, error };
+  return { data, loading, error };
 };
 
 // Using the custom hook
 const UserList = () => {
-    const { data: users, loading, error } = useFetch("/api/users");
+  const { data: users, loading, error } = useFetch("/api/users");
 
-    if (loading) return <p>Loading...</p>;
-    if (error) return <p>Error: {error}</p>;
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
 
-    return (
-        <ul>
-            {users.map(user => <li key={user.id}>{user.name}</li>)}
-        </ul>
-    );
+  return (
+    <ul>
+      {users.map((user) => (
+        <li key={user.id}>{user.name}</li>
+      ))}
+    </ul>
+  );
 };
 ```
 
@@ -939,44 +1112,51 @@ npm install react-router-dom
 ```
 
 ```jsx
-import { BrowserRouter, Routes, Route, Link, useParams, useNavigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Link,
+  useParams,
+  useNavigate,
+} from "react-router-dom";
 
 // Setup routes
 const App = () => {
-    return (
-        <BrowserRouter>
-            <nav>
-                <Link to="/">Home</Link>
-                <Link to="/about">About</Link>
-                <Link to="/users/42">User 42</Link>
-            </nav>
+  return (
+    <BrowserRouter>
+      <nav>
+        <Link to="/">Home</Link>
+        <Link to="/about">About</Link>
+        <Link to="/users/42">User 42</Link>
+      </nav>
 
-            <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/users/:id" element={<UserProfile />} />
-                <Route path="*" element={<h1>404 Not Found</h1>} />
-            </Routes>
-        </BrowserRouter>
-    );
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/users/:id" element={<UserProfile />} />
+        <Route path="*" element={<h1>404 Not Found</h1>} />
+      </Routes>
+    </BrowserRouter>
+  );
 };
 
 // Access URL parameters
 const UserProfile = () => {
-    const { id } = useParams();
-    return <h1>User ID: {id}</h1>;
+  const { id } = useParams();
+  return <h1>User ID: {id}</h1>;
 };
 
 // Navigate programmatically
 const LoginPage = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const handleLogin = () => {
-        // ... login logic
-        navigate("/dashboard");
-    };
+  const handleLogin = () => {
+    // ... login logic
+    navigate("/dashboard");
+  };
 
-    return <button onClick={handleLogin}>Log In</button>;
+  return <button onClick={handleLogin}>Log In</button>;
 };
 ```
 
