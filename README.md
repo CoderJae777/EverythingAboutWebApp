@@ -1,37 +1,36 @@
 # EverythingAboutWebApp
 
-A personal knowledge base covering everything about web application development
-
-## About
-
-This repository is my central hub for all web development notes, cheatsheets, and hands-on experiences. Built alongside the [Meta React Native Specialization](https://www.coursera.org/specializations/meta-react-native) on Coursera and expanded with learnings from real-world projects.
+Personal notes and projects whilst taking the [Meta React Native Specialization](https://www.coursera.org/specializations/meta-react-native) on Coursera.
 
 ## What's Inside
 
-| File                           | Topic                                                           |
-| ------------------------------ | --------------------------------------------------------------- |
-| [html.md](html.md)             | HTML elements, attributes, forms, semantic layout               |
-| [css.md](css.md)               | Selectors, box model, flexbox, grid, responsive design          |
-| [javascript.md](javascript.md) | Modern JS with a React focus — ES6+, array methods, async/await |
-| [Notes.md](Notes.md)           | General notes and observations                                  |
+### Notes & Cheatsheets
 
-## Topics Covered
+| File | Topic |
+| ---- | ----- |
+| [Frontend/html.md](Frontend/html.md) | HTML elements, attributes, forms, semantic layout |
+| [Frontend/css.md](Frontend/css.md) | Selectors, box model, flexbox, grid, responsive design |
+| [Frontend/reactjs.md](Frontend/reactjs.md) | React components, props, state, hooks, routing, styling |
+| [Javascript/javascript.md](Javascript/javascript.md) | Modern JS (ES6+), array methods, async/await |
 
-- **HTML** &rarr; Structure, semantic elements, forms, accessibility
-- **CSS** &rarr; Styling, layout (Flexbox & Grid), animations, responsive design
-- **JavaScript** &rarr; ES6+, DOM manipulation, async programming, modules
-- **React** &rarr; Components, props, state, hooks, event handling
+### Projects
 
-## Topics to Explore
+| Project | Description | Built With |
+| ------- | ----------- | ---------- |
+| [counter_app](Projects/counter_app) | Simple counter app | Vite + React |
+| [jae-calculator](Projects/jae-calculator) | Calculator with add, subtract, multiply, divide | Create React App |
+| [meta-react-basics](Projects/meta-react-basics) | Components, props, and event handling practice | Vite + React |
+| [random-number-cards](Projects/random-number-cards) | Component reusability and props lab | Vite + React |
 
-- TypeScript
-- Node.js & Express
-- REST APIs & GraphQL
-- Databases (SQL & NoSQL)
-- Authentication & Security
-- Testing (Jest, React Testing Library)
-- Deployment & CI/CD
-- Git & Version Control
+## Repository Structure
+
+```text
+EverythingAboutWebApp/
+├── Frontend/          # HTML, CSS, React notes
+├── Javascript/        # JavaScript notes
+├── Backend/           # (coming soon)
+└── Projects/          # Hands-on React projects
+```
 
 ## License
 

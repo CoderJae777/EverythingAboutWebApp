@@ -32,7 +32,14 @@ _Course: [React Basics](https://www.coursera.org/learn/react-basics)_
 - [Functional Components](#functional-components)
 - [Stateful vs Stateless Components](#stateful-vs-stateless-components)
 - [Props](#props)
+  - [Full Example (start to end)](#full-example-start-to-end)
+  - [Destructuring Props (cleaner syntax)](#destructuring-props-cleaner-syntax)
+  - [Default Prop Values](#default-prop-values)
+  - [Children Props](#children-props)
+  - [Passing Functions as Props](#passing-functions-as-props)
+  - [Passing JS Data as props](#passing-js-data-as-props)
 - [useState](#usestate)
+- [Passing useStates as props](#passing-usestates-as-props)
 - [useEffect](#useeffect)
 - [Fetching Data](#fetching-data)
 - [Forms — Controlled Components](#forms--controlled-components)
@@ -42,6 +49,7 @@ _Course: [React Basics](https://www.coursera.org/learn/react-basics)_
 - [Custom Hooks](#custom-hooks)
 - [React Router (v6)](#react-router-v6)
 - [Styling in React](#styling-in-react)
+- [Video and Audio Components](#video-and-audio-components)
 
 ---
 
@@ -1182,3 +1190,40 @@ import "./App.css";
 import styles from "./Button.module.css";
 <button className={styles.primary}>Click</button>
 ```
+
+---
+
+### Video and Audio Components
+
+[Back to top](#table-of-contents)
+
+```bash
+npm install react-player
+```
+
+```jsx
+import ReactPlayer from "react-player";
+
+// Video with common props
+const MyVideo = () => {
+    return (
+        <ReactPlayer
+            url="/video.mp4"
+            controls={true}       // show play/pause/volume controls
+            playing={false}       // don't auto-play on render
+            muted={false}         // start unmuted
+            volume={0.8}          // volume from 0 to 1 (80%)
+            loop={false}          // don't repeat when finished
+            width="640px"
+            height="360px"
+        />
+    );
+};
+
+// Audio
+const MyAudio = () => {
+    return <ReactPlayer url="/audio.mp3" controls={true} height="50px" />;
+};
+```
+
+ReactPlayer supports local files, YouTube, Vimeo, SoundCloud, and more — just pass the URL.
