@@ -25,10 +25,17 @@
 - [If / Else](#if--else)
 - [Switch Case](#switch-case)
 - [Loops](#loops)
+- [Functions](#functions)
+- [Functional Programming](#functional-programming)
+- [Arrays & Sorting](#arrays--sorting)
+- [Push, Pop & Arrays of Objects](#push-pop--arrays-of-objects)
+- [Math Object](#math-object)
 - [Arithmetic Operators](#arithmetic-operators)
 - [`=` vs `==` vs `===`](#-vs--vs-)
 - [Comparison & Equality](#comparison--equality)
+- [Objects](#objects)
 - [Object Methods](#object-methods)
+- [Strings](#strings)
 - [Useful String Methods](#useful-string-methods)
 - [JSON](#json)
 - [Error Handling](#error-handling)
@@ -89,6 +96,21 @@ const nothing = null; // Intentional empty value
 const notDefined = undefined; // Not yet assigned
 const arr = [1, 2, 3]; // Array
 const obj = { name: "Alice", age: 25 }; // Object
+
+// typeof — check the type of a value at runtime
+typeof "hello";     // "string"
+typeof 42;          // "number"
+typeof true;        // "boolean"
+typeof undefined;   // "undefined"
+typeof null;        // "object" ← known JS quirk, null is NOT an object
+typeof [1, 2, 3];   // "object" ← arrays are objects too
+typeof {};          // "object"
+typeof function(){}; // "function"
+
+// Practical use — guard before using a value
+if (typeof value === "string") {
+  console.log(value.toUpperCase());
+}
 ```
 
 ## Template Literals
@@ -231,6 +253,272 @@ const part = nums.slice(1, 3); // [2, 3]
 const result = nums.filter((n) => n > 2).map((n) => n * 10); // [30, 40, 50]
 ```
 
+## Functional Programming
+
+[Back to top](#table-of-contents)
+
+Functional programming (FP) is a style of writing code where you avoid changing data and instead build programs by composing small, predictable functions.
+
+**Core concepts:**
+
+```js
+// ── Pure Functions ─────────────────────────────────────────────
+// Always returns the same output for the same input.
+// No side effects (doesn't modify anything outside itself).
+
+// Impure — modifies external state
+let total = 0;
+function addToTotal(n) { total += n; } // side effect!
+
+// Pure — same input always gives same output
+function add(a, b) { return a + b; }
+
+// ── Immutability ───────────────────────────────────────────────
+// Don't modify existing data — create new copies instead.
+
+const nums = [1, 2, 3];
+
+// Bad — mutates original
+nums.push(4);
+
+// Good — returns new array
+const newNums = [...nums, 4];
+
+// Bad — mutates object
+const user = { name: "Alice", age: 25 };
+user.age = 26;
+
+// Good — returns new object
+const updatedUser = { ...user, age: 26 };
+
+// ── First-Class Functions ──────────────────────────────────────
+// Functions can be stored in variables, passed as arguments, returned.
+
+const double = (n) => n * 2;
+const square = (n) => n * n;
+
+// Pass a function as an argument
+[1, 2, 3].map(double); // [2, 4, 6]
+[1, 2, 3].map(square); // [1, 4, 9]
+
+// ── Higher-Order Functions ─────────────────────────────────────
+// Functions that take or return other functions.
+
+function applyTwice(fn, value) {
+  return fn(fn(value));
+}
+applyTwice(double, 3); // 12
+
+// ── Function Composition ──────────────────────────────────────
+// Combine small functions to build more complex behaviour.
+
+const trim = (str) => str.trim();
+const toLowerCase = (str) => str.toLowerCase();
+const removeSpaces = (str) => str.replace(/\s+/g, "-");
+
+// Chain them manually
+const slugify = (str) => removeSpaces(toLowerCase(trim(str)));
+slugify("  Hello World  "); // "hello-world"
+
+// ── Avoid Shared State ────────────────────────────────────────
+// Instead of mutating shared variables, pass state through functions.
+
+// Bad
+let count = 0;
+function increment() { count++; }
+
+// Good
+function increment(count) { return count + 1; }
+const newCount = increment(0); // 1
+```
+
+> In React, functional programming principles are everywhere — pure components, immutable state updates, and `.map()`/`.filter()` for rendering lists all follow FP ideas.
+
+## Arrays & Sorting
+
+[Back to top](#table-of-contents)
+
+```js
+// Creating arrays
+const empty = [];
+const nums = [1, 2, 3];
+const mixed = [1, "hello", true, null];
+const filled = new Array(3).fill(0);        // [0, 0, 0]
+const range = Array.from({ length: 5 }, (_, i) => i); // [0, 1, 2, 3, 4]
+
+// Accessing & updating
+nums[0];              // 1 (first element)
+nums[nums.length - 1]; // 3 (last element)
+nums.at(-1);          // 3 (last element — cleaner)
+nums[0] = 10;         // mutates: [10, 2, 3]
+
+// Adding & removing (mutate the original array)
+nums.push(4);         // add to end    → [1, 2, 3, 4]
+nums.pop();           // remove from end → returns 4
+nums.unshift(0);      // add to start  → [0, 1, 2, 3]
+nums.shift();         // remove from start → returns 0
+nums.splice(1, 1);    // remove 1 item at index 1
+nums.splice(1, 0, 99); // insert 99 at index 1 (no removal)
+
+// Non-mutating alternatives (return new array)
+const withExtra = [...nums, 4];           // add to end
+const withoutLast = nums.slice(0, -1);    // remove last
+const withoutFirst = nums.slice(1);       // remove first
+```
+
+**Sorting:**
+
+```js
+const nums = [10, 1, 21, 3];
+const words = ["banana", "apple", "cherry"];
+
+// Default .sort() — converts to strings, often wrong for numbers
+nums.sort();            // [1, 10, 21, 3] ← WRONG for numbers
+
+// Numeric sort ascending
+nums.sort((a, b) => a - b);   // [1, 3, 10, 21]
+
+// Numeric sort descending
+nums.sort((a, b) => b - a);   // [21, 10, 3, 1]
+
+// String sort (alphabetical A–Z)
+words.sort();                         // ["apple", "banana", "cherry"]
+words.sort((a, b) => a.localeCompare(b)); // safer, handles accents/case
+
+// String sort Z–A
+words.sort((a, b) => b.localeCompare(a));
+
+// Sort objects by a property
+const users = [
+  { name: "Charlie", age: 30 },
+  { name: "Alice", age: 25 },
+  { name: "Bob", age: 28 },
+];
+users.sort((a, b) => a.age - b.age);              // by age ascending
+users.sort((a, b) => a.name.localeCompare(b.name)); // by name A–Z
+
+// .sort() mutates — copy first to keep original
+const sorted = [...nums].sort((a, b) => a - b);
+```
+
+> `.sort()` mutates the original array. Always spread (`[...arr]`) before sorting if you need to keep the original.
+
+## Push, Pop & Arrays of Objects
+
+[Back to top](#table-of-contents)
+
+**push & pop:**
+
+```js
+const fruits = ["apple", "banana"];
+
+// push — add one or more items to the END, returns new length
+fruits.push("cherry");          // ["apple", "banana", "cherry"]
+fruits.push("date", "elderberry"); // can push multiple at once
+
+// pop — remove the LAST item, returns the removed item
+const last = fruits.pop();      // last = "elderberry"
+                                // fruits = ["apple", "banana", "cherry", "date"]
+
+// unshift — add to the START (like push but front)
+fruits.unshift("avocado");      // ["avocado", "apple", ...]
+
+// shift — remove from the START (like pop but front)
+const first = fruits.shift();   // first = "avocado"
+```
+
+> `push`/`pop` are fast (end of array). `unshift`/`shift` are slower (re-indexes everything).
+
+**Arrays of objects:**
+
+```js
+const users = [
+  { id: 1, name: "Alice", age: 25 },
+  { id: 2, name: "Bob",   age: 30 },
+  { id: 3, name: "Charlie", age: 28 },
+];
+
+// Access
+users[0];           // { id: 1, name: "Alice", age: 25 }
+users[0].name;      // "Alice"
+
+// Add a new object
+users.push({ id: 4, name: "Diana", age: 22 });
+
+// Remove the last object
+users.pop();
+
+// Find an object by property
+const user = users.find((u) => u.id === 2);       // { id: 2, name: "Bob", age: 30 }
+
+// Filter objects
+const over27 = users.filter((u) => u.age > 27);   // [Bob, Charlie]
+
+// Update a specific object (without mutating original)
+const updated = users.map((u) =>
+  u.id === 2 ? { ...u, age: 31 } : u
+);
+
+// Remove a specific object by id
+const removed = users.filter((u) => u.id !== 2);
+
+// Check if any object matches
+users.some((u) => u.name === "Alice");  // true
+
+// Sort by property
+users.sort((a, b) => a.age - b.age);   // youngest to oldest
+```
+
+## Objects
+
+[Back to top](#table-of-contents)
+
+```js
+// Creating an object
+const user = { name: "Alice", age: 25, active: true };
+
+// Accessing properties
+user.name;          // "Alice"  — dot notation
+user["name"];       // "Alice"  — bracket notation (useful for dynamic keys)
+
+const key = "age";
+user[key];          // 25
+
+// Adding & updating properties
+user.email = "alice@mail.com";  // add new
+user.age = 26;                  // update existing
+
+// Deleting a property
+delete user.active;
+
+// Checking if a property exists
+"name" in user;             // true
+user.hasOwnProperty("age"); // true
+
+// Nested objects
+const person = {
+  name: "Alice",
+  address: {
+    city: "NYC",
+    zip: "10001",
+  },
+};
+person.address.city;        // "NYC"
+person["address"]["zip"];   // "10001"
+
+// Optional chaining — safe access on nested objects
+person?.address?.city;      // "NYC" (won't throw if address is undefined)
+
+// Looping over an object
+for (const key in user) {
+  console.log(key, user[key]);
+}
+
+// Copying an object (shallow)
+const copy = { ...user };
+const copy2 = Object.assign({}, user);
+```
+
 ## Object Methods
 
 [Back to top](#table-of-contents)
@@ -320,6 +608,60 @@ for (const key in user) {
 ```
 
 In React, you'll rarely use loops directly — `.map()` and `.filter()` are preferred for rendering lists.
+
+## Functions
+
+[Back to top](#table-of-contents)
+
+```js
+// Function declaration — hoisted (can call before definition)
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+
+// Function expression — not hoisted
+const greet = function(name) {
+  return `Hello, ${name}!`;
+};
+
+// Arrow function — shortest syntax (see also: Arrow Functions section)
+const greet = (name) => `Hello, ${name}!`;
+
+// Default parameters — used if argument is undefined or not passed
+function greet(name = "stranger") {
+  return `Hello, ${name}!`;
+}
+greet();          // "Hello, stranger!"
+greet("Alice");   // "Hello, Alice!"
+
+// Rest parameters — collect extra arguments into an array
+function sum(...nums) {
+  return nums.reduce((acc, n) => acc + n, 0);
+}
+sum(1, 2, 3);     // 6
+sum(1, 2, 3, 4);  // 10
+
+// Multiple return values — via destructuring
+function getUser() {
+  return { name: "Alice", age: 25 };
+}
+const { name, age } = getUser();
+
+// Functions are values — can be passed around
+const apply = (fn, value) => fn(value);
+apply(Math.sqrt, 16); // 4
+
+// Immediately Invoked Function Expression (IIFE)
+(function () {
+  console.log("Runs immediately");
+})();
+```
+
+**Key concepts:**
+
+- `return` exits the function and sends back a value. Without it, the function returns `undefined`.
+- Variables declared inside a function are **local** — not accessible outside.
+- Functions can call themselves (**recursion**), but always include a base case to stop.
 
 ## Ternary Operator
 
@@ -487,18 +829,142 @@ const saved = JSON.parse(localStorage.getItem("user"));
 [Back to top](#table-of-contents)
 
 ```js
+// Basic try/catch
+try {
+  // Code that might throw an error
+  const data = JSON.parse("bad json");
+} catch (error) {
+  // Runs only if an error was thrown
+  console.error(error.message);
+}
+
+// try / catch / finally
 try {
   const data = JSON.parse(badString);
 } catch (error) {
-  console.error(error.message);
+  console.error(error.message); // handle the error
 } finally {
-  // Runs regardless of success or failure
+  // Always runs — whether it succeeded or failed
+  // Good for cleanup (closing connections, hiding loaders, etc.)
+  console.log("Done");
 }
 
-// Throwing custom errors
-if (!user) {
-  throw new Error("User not found");
+// The error object
+try {
+  null.name; // throws TypeError
+} catch (error) {
+  error.name;     // "TypeError"
+  error.message;  // "Cannot read properties of null"
+  error.stack;    // full stack trace (useful for debugging)
 }
+
+// Throwing your own errors
+function divide(a, b) {
+  if (b === 0) throw new Error("Cannot divide by zero");
+  return a / b;
+}
+
+try {
+  divide(10, 0);
+} catch (error) {
+  console.error(error.message); // "Cannot divide by zero"
+}
+
+// ── Error Types ───────────────────────────────────────────────
+
+// Error — generic base error, use when no specific type fits
+throw new Error("Something went wrong");
+
+// TypeError — wrong type used, or method called on wrong type
+null.name;                    // TypeError: Cannot read properties of null
+undefined.toUpperCase();      // TypeError: undefined is not a function
+(42).toUpperCase();           // TypeError: not a function
+
+// ReferenceError — variable used before it's declared or doesn't exist
+console.log(foo);             // ReferenceError: foo is not defined
+
+// SyntaxError — invalid JS syntax (usually caught before runtime)
+JSON.parse("bad { json");     // SyntaxError: Unexpected token
+
+// RangeError — value is outside an allowed range
+new Array(-1);                // RangeError: Invalid array length
+(1.234).toFixed(200);         // RangeError: toFixed() digits out of range
+
+// URIError — malformed URI passed to encodeURI / decodeURI
+decodeURIComponent("%");      // URIError: URI malformed
+
+// Catching a specific error type
+try {
+  null.name;
+} catch (error) {
+  if (error instanceof TypeError) {
+    console.error("Type problem:", error.message);
+  } else if (error instanceof ReferenceError) {
+    console.error("Reference problem:", error.message);
+  } else {
+    throw error; // re-throw if you don't handle it
+  }
+}
+
+// try/catch with async/await
+const fetchData = async () => {
+  try {
+    const res = await fetch("https://api.example.com/data");
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.error("Fetch failed:", error.message);
+  }
+};
+```
+
+## Strings
+
+[Back to top](#table-of-contents)
+
+```js
+// Creating strings
+const single = 'hello';
+const double = "hello";
+const template = `hello`;   // backtick — supports expressions
+
+// Concatenation
+const first = "Hello";
+const second = "World";
+
+first + " " + second;           // "Hello World" — + operator
+first.concat(" ", second);      // "Hello World" — concat method
+`${first} ${second}`;           // "Hello World" — template literal (preferred)
+
+// concat() accepts multiple arguments
+"Hello".concat(" ", "World", "!"); // "Hello World!"
+
+// Repeat
+"ha".repeat(3);         // "hahaha"
+
+// Padding (useful for formatting)
+"5".padStart(3, "0");   // "005" — pad left to length 3
+"5".padEnd(3, "0");     // "500" — pad right to length 3
+
+// Replace all occurrences
+"aabbaa".replace("a", "x");     // "xabbaa"  — only first match
+"aabbaa".replaceAll("a", "x");  // "xxbbxx"  — all matches
+
+// Split & Join
+const str = "apple,banana,cherry";
+const arr = str.split(",");         // ["apple", "banana", "cherry"]
+arr.join(" - ");                    // "apple - banana - cherry"
+
+// Accessing characters
+const word = "hello";
+word[0];            // "h"
+word.charAt(1);     // "e"
+word.at(-1);        // "o" — last character
+
+// indexOf — find position of a substring (-1 if not found)
+"hello".indexOf("l");       // 2 (first match)
+"hello".lastIndexOf("l");   // 3 (last match)
+"hello".indexOf("z");       // -1
 ```
 
 ## Useful String Methods
@@ -518,6 +984,46 @@ str.trim(); // Remove whitespace from both ends
 str.split(", "); // ["Hello", "World!"]
 str.replace("World", "JS"); // "Hello, JS!"
 str.slice(0, 5); // "Hello"
+```
+
+## Math Object
+
+[Back to top](#table-of-contents)
+
+```js
+// Constants
+Math.PI;        // 3.14159...
+Math.E;         // 2.71828... (Euler's number)
+
+// Rounding
+Math.round(4.6);  // 5  — rounds to nearest integer
+Math.round(4.4);  // 4
+Math.floor(4.9);  // 4  — always rounds DOWN
+Math.ceil(4.1);   // 5  — always rounds UP
+Math.trunc(4.9);  // 4  — removes decimal, no rounding
+
+// Min & Max
+Math.max(1, 5, 3);   // 5
+Math.min(1, 5, 3);   // 1
+Math.max(...[1, 5, 3]); // 5 — spread array in
+
+// Powers & Roots
+Math.pow(2, 10);   // 1024 — same as 2 ** 10
+Math.sqrt(25);     // 5
+Math.cbrt(27);     // 3 — cube root
+
+// Absolute value
+Math.abs(-7);      // 7
+
+// Random number between 0 (inclusive) and 1 (exclusive)
+Math.random();              // e.g. 0.472...
+
+// Random integer between 0 and n-1
+Math.floor(Math.random() * 6);      // 0–5 (like a die roll)
+
+// Random integer between min and max (inclusive)
+const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+randomInt(1, 10); // random number from 1 to 10
 ```
 
 ## Arithmetic Operators
