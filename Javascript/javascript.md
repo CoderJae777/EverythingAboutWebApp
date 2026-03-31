@@ -19,6 +19,7 @@
 
 **JavaScript (General)**
 - [Variables](#variables)
+- [let and const](#let-and-const)
 - [Strings: Quotes vs Backticks](#strings-quotes-vs-backticks)
 - [Console Log](#console-log)
 - [Data Types](#data-types)
@@ -33,6 +34,9 @@
 - [Arithmetic Operators](#arithmetic-operators)
 - [`=` vs `==` vs `===`](#-vs--vs-)
 - [Comparison & Equality](#comparison--equality)
+- [Classes](#classes)
+- [Private Fields & Methods](#private-fields--methods)
+- [Constructors](#constructors)
 - [Objects](#objects)
 - [Object Methods](#object-methods)
 - [Strings](#strings)
@@ -40,6 +44,7 @@
 - [JSON](#json)
 - [Error Handling](#error-handling)
 - [setTimeout & setInterval](#settimeout--setinterval)
+- [Testing with Jest](#testing-with-jest)
 
 ---
 
@@ -52,6 +57,67 @@ const name = "Alice"; // Cannot be reassigned — use by default
 let count = 0; // Can be reassigned — use when value changes
 var old = "avoid"; // Function-scoped — avoid in modern JS
 ```
+
+## let and const
+
+[Back to top](#table-of-contents)
+
+`const` and `let` are block-scoped — they only exist within the `{}` block they're declared in. Prefer `const` by default; use `let` only when you need to reassign.
+
+```js
+// const — cannot be reassigned (but objects/arrays can still be mutated)
+const name = "Alice";
+name = "Bob"; // TypeError: Assignment to constant variable
+
+const user = { name: "Alice" };
+user.name = "Bob";   // OK — you're mutating the object, not reassigning the variable
+user = {};           // TypeError — reassigning the variable itself is not allowed
+
+const nums = [1, 2, 3];
+nums.push(4);        // OK — mutating the array is fine
+nums = [];           // TypeError
+
+// let — can be reassigned
+let count = 0;
+count = 1;           // OK
+count++;             // OK
+
+// Block scoping — both let and const are limited to their block
+if (true) {
+  const x = 10;
+  let y = 20;
+  console.log(x, y); // 10 20
+}
+console.log(x); // ReferenceError: x is not defined
+console.log(y); // ReferenceError: y is not defined
+
+// var is function-scoped — leaks out of blocks (avoid)
+if (true) {
+  var z = 30;
+}
+console.log(z); // 30 — leaks out of the if block
+
+// Temporal Dead Zone — let/const cannot be accessed before declaration
+console.log(a); // ReferenceError (TDZ)
+let a = 5;
+
+console.log(b); // undefined (var is hoisted and initialized to undefined)
+var b = 5;
+```
+
+**Comparison:**
+
+| | `var` | `let` | `const` |
+| --- | --- | --- | --- |
+| Reassign | yes | yes | no |
+| Redeclare | yes | no | no |
+| Scope | function | block | block |
+
+**When to use which:**
+
+- `const` — default choice for everything
+- `let` — only when the variable needs to be reassigned (loop counters, accumulators)
+- `var` — never in modern JS
 
 ## Strings: Quotes vs Backticks
 
@@ -368,7 +434,23 @@ const withoutFirst = nums.slice(1);       // remove first
 
 **Sorting:**
 
+`.sort()` takes a comparison function `(a, b)`. The return value decides the order:
+
+| Return value | Result |
+| --- | --- |
+| Negative | `a` comes before `b` |
+| Positive | `b` comes before `a` |
+| `0` | order stays the same |
+
 ```js
+// a - b → ascending (small first)
+// if a=1, b=10 → 1 - 10 = -9 (negative) → a first ✅
+// if a=10, b=1 → 10 - 1 = 9  (positive) → b first ✅
+
+// b - a → descending (large first)
+// if a=1, b=10 → 10 - 1 = 9  (positive) → b first ✅
+// if a=10, b=1 → 1 - 10 = -9 (negative) → a first ✅
+
 const nums = [10, 1, 21, 3];
 const words = ["banana", "apple", "cherry"];
 
@@ -469,6 +551,286 @@ users.some((u) => u.name === "Alice");  // true
 users.sort((a, b) => a.age - b.age);   // youngest to oldest
 ```
 
+## Classes
+
+[Back to top](#table-of-contents)
+
+Classes are a blueprint for creating objects. They bundle data (fields) and behaviour (methods) together.
+
+```js
+// Basic class
+class Animal {
+  // constructor — runs when you do new Animal(...)
+  constructor(name, sound) {
+    this.name = name;   // public field
+    this.sound = sound;
+  }
+
+  // Method
+  speak() {
+    return `${this.name} says ${this.sound}`;
+  }
+}
+
+const dog = new Animal("Dog", "woof");
+dog.speak(); // "Dog says woof"
+dog.name;    // "Dog"
+```
+
+**Inheritance — `extends` and `super`:**
+
+`super` refers to the **parent class**. It has two uses:
+
+- `super(...)` in the constructor — calls the parent's constructor to set up inherited properties
+- `super.method()` anywhere — calls a method from the parent class
+
+If you write a constructor in a subclass, you **must** call `super()` before using `this`, otherwise JS throws a `ReferenceError`.
+
+```js
+class Dog extends Animal {
+  constructor(name) {
+    super(name, "woof"); // runs Animal's constructor with name="Rex", sound="woof"
+    // this.name and this.sound are now set — safe to use this after this line
+  }
+
+  fetch() {
+    return `${this.name} fetches the ball!`;
+  }
+
+  // super.method() — call a parent method explicitly
+  describe() {
+    return super.speak() + " and fetches!"; // calls Animal's speak()
+  }
+}
+
+const rex = new Dog("Rex");
+rex.speak();    // "Rex says woof"  — inherited from Animal
+rex.fetch();    // "Rex fetches the ball!"
+rex.describe(); // "Rex says woof and fetches!"
+```
+
+**Constructor parameters are not enforced — missing ones become `undefined`:**
+
+```js
+const unknown = new Dog(); // no error thrown
+unknown.name;   // undefined
+unknown.speak(); // "undefined says woof" — no crash, just unexpected output
+```
+
+JS does not enforce required parameters. If you need to guard against this, do it manually:
+
+```js
+constructor(name) {
+  if (!name) throw new Error("name is required");
+  super(name, "woof");
+}
+```
+
+**Private fields (`#`) and static members:**
+
+```js
+class BankAccount {
+  #balance; // private — only accessible inside the class
+
+  static bank = "MyBank"; // static — belongs to the class, not instances
+
+  constructor(owner, balance) {
+    this.owner = owner;
+    this.#balance = balance;
+  }
+
+  deposit(amount) {
+    this.#balance += amount;
+  }
+
+  get balance() {
+    return this.#balance; // getter — access like a property
+  }
+}
+
+const acc = new BankAccount("Alice", 1000);
+acc.deposit(500);
+acc.balance;          // 1500 — via getter
+acc.#balance;         // SyntaxError — truly private
+BankAccount.bank;     // "MyBank" — accessed on the class, not instance
+```
+
+**Getters and setters:**
+
+```js
+class Circle {
+  constructor(radius) {
+    this.radius = radius;
+  }
+
+  get area() {
+    return Math.PI * this.radius ** 2;
+  }
+
+  set diameter(d) {
+    this.radius = d / 2;
+  }
+}
+
+const c = new Circle(5);
+c.area;        // 78.53... — called like a property, not c.area()
+c.diameter = 20; // setter — updates radius to 10
+```
+
+> In React, you'll mostly use plain objects and functions rather than classes. But you'll encounter classes in older React code (class components) and in libraries like error boundaries.
+
+## Private Fields & Methods
+
+[Back to top](#table-of-contents)
+
+Private fields and methods use the `#` prefix. They are only accessible inside the class — not from outside, not from subclasses.
+
+**Private fields:**
+
+```js
+class BankAccount {
+  #balance; // must be declared at the top before use
+
+  constructor(owner, balance) {
+    this.owner = owner;  // public
+    this.#balance = balance; // private
+  }
+
+  getBalance() {
+    return this.#balance; // OK — inside the class
+  }
+}
+
+const acc = new BankAccount("Alice", 1000);
+acc.owner;      // "Alice" — public, accessible
+acc.#balance;   // SyntaxError — private, blocked at language level
+acc.getBalance(); // 1000 — accessed via public method
+```
+
+**Private methods:**
+
+```js
+class BankAccount {
+  #balance;
+
+  constructor(balance) {
+    this.#balance = balance;
+  }
+
+  // Private method — internal logic, not exposed
+  #validate(amount) {
+    if (amount <= 0) throw new Error("Amount must be positive");
+    if (amount > this.#balance) throw new Error("Insufficient funds");
+  }
+
+  // Public method — calls private method internally
+  withdraw(amount) {
+    this.#validate(amount); // OK — same class
+    this.#balance -= amount;
+    return this.#balance;
+  }
+}
+
+const acc = new BankAccount(1000);
+acc.withdraw(200);  // 800 — works via public method
+acc.#validate(200); // SyntaxError — private method blocked
+```
+
+**Private fields are NOT inherited by subclasses:**
+
+```js
+class Animal {
+  #secret = "hidden";
+
+  getSecret() {
+    return this.#secret; // OK
+  }
+}
+
+class Dog extends Animal {
+  revealSecret() {
+    return this.#secret; // SyntaxError — subclass cannot access parent's private fields
+  }
+}
+
+const d = new Dog();
+d.getSecret(); // "hidden" — OK, inherited public method still works
+```
+
+**Private vs public — summary:**
+
+| | Public | Private (`#`) |
+| --- | --- | --- |
+| Accessible outside class | yes | no |
+| Accessible in subclass | yes | no |
+| Enforced by JS engine | no (convention only) | yes (SyntaxError) |
+| Prefix | none | `#` |
+
+> Before `#` existed, developers used `_name` as a convention to signal "don't touch this". It was never enforced — `_balance` could still be read and changed from anywhere. `#` makes it truly private.
+
+## Constructors
+
+[Back to top](#table-of-contents)
+
+A constructor is a special function that runs when you create a new object with `new`. Inside a class, it's the `constructor()` method. Outside of classes, regular functions can also act as constructors.
+
+**Constructor inside a class (modern, preferred):**
+
+```js
+class Person {
+  constructor(name, age) {
+    this.name = name; // "this" refers to the new object being created
+    this.age = age;
+  }
+
+  greet() {
+    return `Hi, I'm ${this.name}`;
+  }
+}
+
+const alice = new Person("Alice", 25);
+alice.name;    // "Alice"
+alice.greet(); // "Hi, I'm Alice"
+```
+
+**What `new` does step by step:**
+
+```js
+const alice = new Person("Alice", 25);
+// 1. Creates a new empty object {}
+// 2. Sets "this" to that new object inside the constructor
+// 3. Runs the constructor body (assigns name, age)
+// 4. Returns the new object automatically
+```
+
+**Constructor functions (older style, pre-class syntax):**
+
+```js
+// Convention: capitalise the function name to signal it's a constructor
+function Person(name, age) {
+  this.name = name;
+  this.age = age;
+}
+
+Person.prototype.greet = function () {
+  return `Hi, I'm ${this.name}`;
+};
+
+const alice = new Person("Alice", 25);
+alice.greet(); // "Hi, I'm Alice"
+```
+
+> This older pattern still works and you'll see it in legacy code. Classes are just cleaner syntax on top of the same prototype-based system.
+
+**Forgetting `new`:**
+
+```js
+const alice = Person("Alice", 25); // forgot new — this is now window/undefined
+console.log(alice); // undefined
+```
+
+Always use `new` with constructor functions and classes, or you'll get unexpected behaviour.
+
 ## Objects
 
 [Back to top](#table-of-contents)
@@ -538,7 +900,41 @@ const obj = { [key]: "alice@mail.com" }; // { email: "alice@mail.com" }
 const name = "Alice";
 const age = 25;
 const user = { name, age }; // same as { name: name, age: age }
+
+// Object.assign — merge objects into a target
+const target = { a: 1 };
+Object.assign(target, { b: 2 }, { c: 3 }); // { a: 1, b: 2, c: 3 }
+
+// Object.freeze — prevent any changes to an object
+const config = Object.freeze({ api: "https://example.com", timeout: 3000 });
+config.timeout = 5000; // silently fails (or throws in strict mode)
+
+// Object.create — create a new object with a specified prototype
+const animal = {
+  speak() {
+    return `${this.name} makes a sound`;
+  },
+};
+
+const dog = Object.create(animal); // dog's prototype is animal
+dog.name = "Rex";
+dog.speak(); // "Rex makes a sound" — inherited from animal
+
+// Object.create(null) — object with no prototype (no toString, no hasOwnProperty, etc.)
+const pure = Object.create(null);
+pure.key = "value"; // safe dictionary, no inherited keys
 ```
+
+**Object literal vs Constructor/Class vs Object.create:**
+
+| | Object Literal `{}` | Constructor / Class | `Object.create()` |
+| --- | --- | --- | --- |
+| Syntax | `{ key: value }` | `new ClassName()` | `Object.create(proto)` |
+| Use case | Single one-off object | Many objects of same shape | Inherit from another object |
+| Shared methods | No | Yes, via prototype | Yes, via prototype |
+| Inheritance | No | Via `extends` | Directly from any object |
+| `this` in methods | N/A | Set automatically by `new` | Must assign properties manually |
+| How common | Very common | Common | Rare — mostly in libraries |
 
 ## If / Else
 
@@ -807,6 +1203,190 @@ useEffect(() => {
   return () => clearTimeout(timer); // Cleanup
 }, []);
 ```
+
+## Testing with Jest
+
+[Back to top](#table-of-contents)
+
+Jest is a JavaScript testing framework. It lets you write tests that verify your code behaves correctly.
+
+**Setup:**
+
+```bash
+# 1. Initialise a package.json if you don't have one
+npm init -y
+
+# 2. Install Jest
+npm install --save-dev jest
+
+# 3. Add a test script to package.json
+# In package.json, find "scripts" and add:
+#   "test": "jest"
+```
+
+Your `package.json` should look like this:
+
+```json
+{
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0"
+  }
+}
+```
+
+Run your tests with:
+
+```bash
+npm test
+```
+
+---
+
+**Test file naming — Jest looks for:**
+
+- Files ending in `.test.js` (e.g. `Character.test.js`)
+- Files ending in `.spec.js`
+- Files inside a `__tests__` folder
+
+---
+
+**Basic structure:**
+
+```js
+// describe — groups related tests together
+describe("Character", () => {
+
+  // test (or it) — a single test case
+  test("starts with correct hp", () => {
+    const goblin = new Character("Goblin", 50, 50, 10);
+
+    // expect — what you're checking
+    // toBe — strict equality (===)
+    expect(goblin.hp).toBe(50);
+  });
+
+  it("is alive when hp > 0", () => {    // it() is the same as test()
+    const goblin = new Character("Goblin", 50, 50, 10);
+    expect(goblin.isAlive()).toBe(true);
+  });
+
+});
+```
+
+---
+
+**Common matchers:**
+
+```js
+expect(value).toBe(50);              // strict equality ===
+expect(value).toEqual({ hp: 50 });   // deep equality — use for objects/arrays
+expect(value).toBeTruthy();          // true, 1, "text", []
+expect(value).toBeFalsy();           // false, 0, "", null, undefined
+expect(value).toBeNull();            // strictly null
+expect(value).toBeUndefined();       // strictly undefined
+expect(value).toBeGreaterThan(0);    // > 0
+expect(value).toBeLessThan(100);     // < 100
+expect(array).toContain("Rex");      // array includes value
+expect(string).toMatch(/pattern/);   // regex match
+expect(string).toContain("hello");   // string includes substring
+
+// Testing that a function throws an error
+expect(() => warrior.powerAttack(target)).toThrow("not enough rage");
+```
+
+---
+
+**Exporting for tests:**
+
+At the bottom of the file you want to test, add:
+
+```js
+// Character.js
+module.exports = { Character, Warrior, Mage };
+```
+
+Then import them at the top of your test file:
+
+```js
+// Character.test.js
+const { Character, Warrior, Mage } = require("./Character");
+```
+
+---
+
+**Example — testing the Character class:**
+
+```js
+// Character.test.js
+const { Character, Warrior, Mage } = require("./Character");
+
+describe("Character", () => {
+  let goblin;
+
+  // beforeEach — runs before every test, keeps tests independent
+  beforeEach(() => {
+    goblin = new Character("Goblin", 50, 50, 10);
+  });
+
+  test("takeDamage reduces hp", () => {
+    goblin.takeDamage(20);
+    expect(goblin.hp).toBe(30);
+  });
+
+  test("hp never goes below 0", () => {
+    goblin.takeDamage(999);
+    expect(goblin.hp).toBe(0);
+  });
+
+  test("isAlive returns false when hp reaches 0", () => {
+    goblin.takeDamage(999);
+    expect(goblin.isAlive()).toBe(false);
+  });
+
+  test("heal restores hp", () => {
+    goblin.takeDamage(20);
+    goblin.heal(10);
+    expect(goblin.hp).toBe(40);
+  });
+
+  test("heal cannot exceed maxHp", () => {
+    goblin.heal(999);
+    expect(goblin.hp).toBe(goblin.maxHp);
+  });
+});
+
+describe("Warrior", () => {
+  let warrior;
+  let target;
+
+  beforeEach(() => {
+    warrior = new Warrior("Rex", 100, 100, 25);
+    target  = new Character("Dummy", 200, 200, 0);
+  });
+
+  test("attack deals damage and gains rage", () => {
+    warrior.attack(target);
+    expect(target.hp).toBe(175);
+    expect(warrior.rage).toBe(10);
+  });
+
+  test("powerAttack throws if not enough rage", () => {
+    expect(() => warrior.powerAttack(target)).toThrow("not enough rage");
+  });
+
+  test("powerAttack deals 2.5x damage and costs 30 rage", () => {
+    warrior.rage = 30;
+    warrior.powerAttack(target);
+    expect(target.hp).toBe(137.5); // 200 - (25 * 2.5)
+    expect(warrior.rage).toBe(0);
+  });
+});
+```
+
+> `beforeEach` creates a fresh character before every test so one test can't affect another.
 
 ## JSON
 
