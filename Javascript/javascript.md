@@ -77,6 +77,18 @@ const nums = [1, 2, 3];
 nums.push(4);        // OK — mutating the array is fine
 nums = [];           // TypeError
 
+// ⚠️ const does NOT copy — assigning an array/object to another variable
+// creates a REFERENCE to the same thing in memory, not a new copy
+const a = [1, 2, 3];
+const b = a;         // b points to the SAME array as a
+b.push(4);
+console.log(a);      // [1, 2, 3, 4] — a was also changed!
+
+// To make an independent copy, use spread:
+const c = [...a];    // new array, separate from a
+c.push(99);
+console.log(a);      // [1, 2, 3, 4] — a is unaffected
+
 // let — can be reassigned
 let count = 0;
 count = 1;           // OK
@@ -272,6 +284,45 @@ const props = { type: "text", placeholder: "Enter name" };
 <input {...props} />;
 ```
 
+## Rest Syntax (`...rest`)
+
+[Back to top](#table-of-contents)
+
+The `...rest` syntax uses the same `...` operator but does the **opposite** of spread — instead of expanding values outward, it **collects remaining values** into a new array or object.
+
+```js
+// Object rest — collect leftover properties after destructuring
+const user = { name: "Alice", age: 25, role: "dev" };
+const { name, ...rest } = user;
+// name → "Alice"
+// rest → { age: 25, role: "dev" }
+
+// Array rest — collect remaining elements
+const [first, second, ...others] = [1, 2, 3, 4, 5];
+// first  → 1
+// second → 2
+// others → [3, 4, 5]
+
+// Function rest parameters — collect extra arguments into an array
+function sum(...nums) {
+  return nums.reduce((acc, n) => acc + n, 0);
+}
+sum(1, 2, 3, 4); // 10
+
+// Common in React — pass known props, forward the rest
+const Button = ({ label, onClick, ...rest }) => {
+  return <button onClick={onClick} {...rest}>{label}</button>;
+  // ...rest forwards any extra props (e.g. className, disabled) to the element
+};
+```
+
+**Spread vs Rest — same symbol, opposite direction:**
+
+| | Direction | Example |
+| --- | --- | --- |
+| **Spread** | Expands one thing into many | `[...arr]`, `{...obj}` |
+| **Rest** | Collects many things into one | `const { a, ...rest } = obj` |
+
 ## Array Methods
 
 [Back to top](#table-of-contents)
@@ -305,6 +356,19 @@ const hasThree = nums.includes(3); // true
 
 // .reduce() — accumulate into a single value
 const sum = nums.reduce((acc, n) => acc + n, 0); // 15
+
+// .reduce() with an object accumulator — group items by a condition
+const groupByParity = (array) => {
+  return array.reduce(
+    (acc, n) => {
+      if (n % 2 === 0) acc.evens.push(n);
+      else acc.odds.push(n);
+      return acc;               // must always return the accumulator
+    },
+    { evens: [], odds: [] }     // initial value — start with empty groups
+  );
+};
+groupByParity([1, 2, 3, 4, 5, 6]); // → { evens: [2, 4, 6], odds: [1, 3, 5] }
 
 // .forEach() — run a function on each item (no return value)
 nums.forEach((n) => console.log(n));
@@ -1076,6 +1140,33 @@ const status = age >= 18 ? "adult" : "minor";
 {
   error ? <p>{error}</p> : null;
 }
+```
+
+**React example — dynamic inline style with ternary:**
+
+A common interview pattern: use a ternary inside a `style` prop to change appearance based on a condition.
+
+```jsx
+// CharCounter — turns red when over 100 characters
+const CharCounter = () => {
+  const [text, setText] = useState("");
+
+  return (
+    <div>
+      <textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+      />
+      <p style={{ color: text.length > 100 ? "red" : "black" }}>
+        Characters: {text.length}
+      </p>
+    </div>
+  );
+};
+
+// The ternary sits inside the style object:
+// text.length > 100 ? "red" : "black"
+// — if over limit → red, otherwise → black
 ```
 
 ## Logical Operators for Conditional Rendering

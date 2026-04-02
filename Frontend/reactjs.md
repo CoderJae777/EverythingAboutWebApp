@@ -38,18 +38,24 @@ _Course: [React Basics](https://www.coursera.org/learn/react-basics)_
   - [Children Props](#children-props)
   - [Passing Functions as Props](#passing-functions-as-props)
   - [Passing JS Data as props](#passing-js-data-as-props)
-- [useState](#usestate)
-- [Passing useStates as props](#passing-usestates-as-props)
-- [useEffect](#useeffect)
 - [Fetching Data](#fetching-data)
 - [Forms — Controlled Components](#forms--controlled-components)
-- [useRef](#useref)
-- [useContext](#usecontext)
 - [Lifting State Up](#lifting-state-up)
-- [Custom Hooks](#custom-hooks)
 - [React Router (v6)](#react-router-v6)
 - [Styling in React](#styling-in-react)
 - [Video and Audio Components](#video-and-audio-components)
+
+**React Hooks**
+
+- [useState](#usestate)
+  - [Passing useStates as props](#passing-usestates-as-props)
+- [useEffect](#useeffect)
+- [useRef](#useref)
+- [useContext](#usecontext)
+- [useReducer](#usereducer)
+- [useMemo](#usememo)
+- [useCallback](#usecallback)
+- [Custom Hooks](#custom-hooks)
 
 ---
 
@@ -709,6 +715,14 @@ function Promo() {
 
 ---
 
+## React Hooks
+
+[Back to top](#table-of-contents)
+
+Built-in functions that let you "hook into" React features like state and side effects from functional components. All hooks start with `use`.
+
+---
+
 ### useState
 
 [Back to top](#table-of-contents)
@@ -757,6 +771,8 @@ const LightSwitch = () => {
 // Why use (prev) => ... instead of setIsOn(!isOn)?
 // React batches state updates, so "isOn" might be stale.
 // Using the callback form guarantees you're working with the latest value.
+
+// ⚠️ Stale State — see the dedicated section below for a full explanation.
 
 // Different data types
 const [name, setName] = useState(""); // String
@@ -823,6 +839,61 @@ function FruitsCounter(props) {
 }
 
 export default FruitsCounter;
+```
+
+---
+
+### Stale State
+
+[Back to top](#table-of-contents)
+
+**Stale state** happens when a function captures an old snapshot of a state value and uses it even after the state has changed. It's most common inside `setInterval`, `setTimeout`, and event listeners.
+
+```jsx
+// Bug — stale state
+const Counter = () => {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCount(count + 1); // count is always 0 here — captured at mount
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []); // empty array means count never updates in this closure
+
+  return <p>{count}</p>; // stays at 1 forever
+};
+```
+
+```jsx
+// Fix — use the callback form of the setter
+const Counter = () => {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCount(prev => prev + 1); // always works from latest value
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return <p>{count}</p>; // counts up correctly
+};
+```
+
+**Rule of thumb:** Any time you set state based on its current value inside a timer, async function, or event listener — always use the `prev =>` callback form.
+
+```jsx
+// Also applies to rapid clicks
+const handleClick = () => {
+  setCount(count + 1); // ✗ all three calls read the same stale count
+  setCount(count + 1);
+  setCount(count + 1); // result: only increments by 1
+
+  setCount(prev => prev + 1); // ✓ each call gets the latest value
+  setCount(prev => prev + 1);
+  setCount(prev => prev + 1); // result: increments by 3
+};
 ```
 
 ---
@@ -984,6 +1055,37 @@ clearInterval(timerRef.current);
 
 ---
 
+### useRef vs useState
+
+[Back to top](#table-of-contents)
+
+Both can store values across renders, but they behave very differently:
+
+| | `useState` | `useRef` |
+| --- | --- | --- |
+| **Triggers re-render?** | Yes — changing state re-renders the component | No — changing `.current` never re-renders |
+| **Access value** | Directly: `count` | Via `.current`: `ref.current` |
+| **Use for** | Values the UI needs to display | Values the UI doesn't need to know about |
+
+```jsx
+// useState — use when the UI should reflect the value
+const [count, setCount] = useState(0);
+<p>Count: {count}</p> // re-renders every time count changes
+
+// useRef — use when you need to store something silently
+const timerRef = useRef(null);
+timerRef.current = setInterval(...); // storing a timer ID — no re-render needed
+
+// useRef — access a DOM element directly
+const inputRef = useRef(null);
+<input ref={inputRef} />
+inputRef.current.focus(); // directly focus the input
+```
+
+**Interview one-liner:** Use `useState` when the value needs to show on screen. Use `useRef` when you need to remember something without the UI caring about it.
+
+---
+
 ### useContext
 
 [Back to top](#table-of-contents)
@@ -1028,6 +1130,116 @@ const Navbar = () => {
 <ThemeContext.Consumer>
   {({ theme }) => <p>Current theme: {theme}</p>}
 </ThemeContext.Consumer>;
+```
+
+---
+
+### useReducer
+
+[Back to top](#table-of-contents)
+
+An alternative to `useState` for managing complex state logic. Instead of setting state directly, you dispatch **actions** that a **reducer function** handles.
+
+```jsx
+import { useReducer } from "react";
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "increment":
+      return { count: state.count + 1 };
+    case "decrement":
+      return { count: state.count - 1 };
+    case "reset":
+      return { count: 0 };
+    default:
+      return state;
+  }
+};
+
+const Counter = () => {
+  const [state, dispatch] = useReducer(reducer, { count: 0 });
+
+  return (
+    <div>
+      <p>Count: {state.count}</p>
+      <button onClick={() => dispatch({ type: "increment" })}>+</button>
+      <button onClick={() => dispatch({ type: "decrement" })}>-</button>
+      <button onClick={() => dispatch({ type: "reset" })}>Reset</button>
+    </div>
+  );
+};
+
+// useState vs useReducer
+// useState    — simple, independent values
+// useReducer  — complex objects, multiple related updates, logic lives in one place
+```
+
+---
+
+### useMemo
+
+[Back to top](#table-of-contents)
+
+Caches (memoizes) the **result of a calculation** so it doesn't re-run on every render — only when its dependencies change.
+
+```jsx
+import { useMemo } from "react";
+
+const ProductList = ({ products, filterText }) => {
+  // Without useMemo: this filter runs on EVERY render, even unrelated ones
+  // With useMemo: only recalculates when products or filterText changes
+  const filtered = useMemo(() => {
+    return products.filter((p) =>
+      p.name.toLowerCase().includes(filterText.toLowerCase())
+    );
+  }, [products, filterText]);
+
+  return (
+    <ul>
+      {filtered.map((p) => (
+        <li key={p.id}>{p.name}</li>
+      ))}
+    </ul>
+  );
+};
+
+// Use when: a calculation is expensive and its inputs rarely change
+// Don't use for everything — memoization itself has a small cost
+```
+
+---
+
+### useCallback
+
+[Back to top](#table-of-contents)
+
+Caches (memoizes) a **function** so it isn't recreated on every render — only when its dependencies change. Useful when passing callbacks to child components.
+
+```jsx
+import { useState, useCallback } from "react";
+
+const Parent = () => {
+  const [count, setCount] = useState(0);
+  const [text, setText] = useState("");
+
+  // Without useCallback: handleClick is a brand new function on every render,
+  // causing child components that receive it as a prop to unnecessarily re-render
+  const handleClick = useCallback(() => {
+    setCount((prev) => prev + 1);
+  }, []); // no dependencies — function never needs to change
+
+  return (
+    <>
+      <input value={text} onChange={(e) => setText(e.target.value)} />
+      <ChildButton onClick={handleClick} />
+      <p>Count: {count}</p>
+    </>
+  );
+};
+
+// useMemo vs useCallback
+// useMemo     — caches a computed VALUE    → useMemo(() => compute(), [deps])
+// useCallback — caches a FUNCTION itself  → useCallback(() => fn(), [deps])
 ```
 
 ---
